@@ -2,7 +2,7 @@
 Code from my Youtube video(s)
 
 # Snake.py
-A very simple iteration of the retro game 'Snake' 
+A very simple iteration of the retro game 'Snake' <br/>
 **Deployment**: 
 1) Download Snake.py <br/>
 2) Download Python3 [https://www.python.org/downloads/] <br/>
