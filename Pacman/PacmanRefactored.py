@@ -10,10 +10,6 @@ import copy
 # and the duration of their hunt
 # - Add the fruits
 # - Display score gotten from fruits and ghost
-<<<<<<< HEAD
-=======
-# - Display score and high score
->>>>>>> 6399dbf73716a69e79f2b6b0e01a2b12017f6b04
 # - Add Launch screen and game over screen
 # - Add click to play and game over banners
 
@@ -21,9 +17,6 @@ import copy
 
 # 28 Across 31 Tall 1: Empty Space 2: Tic-Tak 3: Wall 4: Ghost safe-space 5: Special Tic-Tak
 originalGameBoard = [
-    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
@@ -250,10 +243,7 @@ class Game:
         # Draws game elements
         currentTile = 0
         self.displayLives()
-<<<<<<< HEAD
         self.displayScore()
-=======
->>>>>>> 6399dbf73716a69e79f2b6b0e01a2b12017f6b04
         for i in range(3, len(gameBoard) - 2):
             for j in range(len(gameBoard[0])):
                 if gameBoard[i][j] == 3: # Draw wall
@@ -564,10 +554,6 @@ class Ghost:
         if self.attacked and not self.dead:
             self.ghostSpeed = 1/8
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 6399dbf73716a69e79f2b6b0e01a2b12017f6b04
         if self.attackedCount == self.attackedTimer and self.attacked:
             if not self.dead:
                 self.ghostSpeed = 1/4
