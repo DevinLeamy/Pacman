@@ -429,14 +429,14 @@ class Game:
         return total
 
     def getHighScore(self):
-        file = open("highScore.txt", "r")
+        file = open("HighScore.txt", "r")
         highScore = int(file.read())
         file.close()
         return highScore
 
     def recordHighScore(self):
-        file = open("highScore.txt", "w").close()
-        file = open("highScore.txt", "w+")
+        file = open("HighScore.txt", "w").close()
+        file = open("HighScore.txt", "w+")
         file.write(str(self.highScore))
         file.close()
 
