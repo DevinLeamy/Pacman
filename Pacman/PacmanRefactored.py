@@ -2,21 +2,24 @@ import pygame
 import math
 from random import randrange
 import random
+import copy
 
 # Things to add / change
-# -Make individuals ghosts "hunt"
-# -Generate levels by progressively increasing the number of ghosts that "hunt"
+# - Make individual ghosts "hunt"
+# - Generate levels by progressively increasing the number of ghosts that "hunt"
 # and the duration of their hunt
-# -Add the fruits
-# -Display score gotten from fruits and ghost
-# -Display score and high score
-# -Add Launch screen and game over screen
-# -Add click to play and game over banners
+# - Add the fruits
+# - Display score gotten from fruits and ghost
+# - Add Launch screen and game over screen
+# - Add click to play and game over banners
 
 
 
 # 28 Across 31 Tall 1: Empty Space 2: Tic-Tak 3: Wall 4: Ghost safe-space 5: Special Tic-Tak
-gameBoard = [
+originalGameBoard = [
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,2,2,2,2,2,3],
     [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
@@ -51,10 +54,11 @@ gameBoard = [
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
 ]
+gameBoard = copy.deepcopy(originalGameBoard)
 spriteRatio = 3/2
 square = 30 # Size of each unit square
 spriteOffset = square * (1 - spriteRatio) * (1/2)
-(width, height) = (len(gameBoard[0]) * square, len(gameBoard) * square) # Game screen
+(width, height) = (len(gameBoard[0]) * square + 1, len(gameBoard) * square) # Game screen
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
 
@@ -69,12 +73,12 @@ class Game:
         self.tictakChangeDelay = 10
         self.tictakChangeCount = 0
         self.ghostsAttacked = False
-        self.highScore = 0
+        self.highScore = self.getHighScore()
         self.score = score
         self.level = level
         self.lives = 3
-        self.ghosts = [Ghost(11.0, 13.5, "red", 0), Ghost(14.0, 11.5, "blue", 1), Ghost(14.0, 13.5, "pink", 2), Ghost(14.0, 15.5, "orange", 3)]
-        self.pacman = Pacman(23.0, 13.5) # Center of Second Last Row
+        self.ghosts = [Ghost(14.0, 13.5, "red", 0), Ghost(17.0, 11.5, "blue", 1), Ghost(17.0, 13.5, "pink", 2), Ghost(17.0, 15.5, "orange", 3)]
+        self.pacman = Pacman(26.0, 13.5) # Center of Second Last Row
         self.total = self.getCount()
         self.ghostScore = 200
         self.levels = [[140, 70, 140, 70], [120, 50, 100, 120], [40, 200, 40, 200]]
@@ -96,7 +100,7 @@ class Game:
         if self.paused or not self.started:
             return
 
-        print(self.hunting)
+        # print(self.hunting)
 
         self.ghostUpdateCount += 1
         self.pacmanUpdateCount += 1
@@ -104,7 +108,7 @@ class Game:
         self.ghostsAttacked = False
         self.levelProgress += 1
 
-        print(self.levelProgress)
+        # print(self.levelProgress)
         if self.levelProgress == self.levels[self.level-1][self.levelIndex]:
             self.levelProgress = 0
             self.levelIndex += 1
@@ -132,10 +136,25 @@ class Game:
         # Check if pacman got killed
         for ghost in self.ghosts:
             if self.touchingPacman(ghost) and not ghost.attacked:
+                if self.lives == 1:
+                    print("You lose")
+                    self.gameOver = True
+                    #Removes the ghosts from the screen
+                    for ghost in self.ghosts:
+                        self.drawTilesAround(ghost.row, ghost.col)
+                    self.drawTilesAround(self.pacman.row, self.pacman.col)
+                    self.pacman.draw()
+                    pygame.display.update()
+                    pause(10000000)
+                    return
+                self.started = False
                 reset()
             elif self.touchingPacman(ghost) and ghost.isAttacked() and not ghost.isDead():
                 ghost.setDead(True)
                 ghost.setTarget()
+                ghost.ghostSpeed = 1
+                self.row = math.floor(self.row)
+                self.col = math.floor(self.col)
                 self.score += self.ghostScore
                 self.ghostScore *= 2
                 pause(10000000)
@@ -170,7 +189,7 @@ class Game:
                     self.collected += 1
                     # Fill tile with black
                     pygame.draw.rect(screen, (0, 0, 0), (self.pacman.col * square, self.pacman.row * square, square, square))
-                    self.score += 10
+                    self.score += 50
                     self.ghostScore = 200
                     for ghost in self.ghosts:
                         ghost.attackedCount = 0
@@ -192,13 +211,18 @@ class Game:
                     pygame.display.update()
                     pause(10000000)
                     return
+                self.started = False
                 reset()
             elif self.touchingPacman(ghost) and ghost.isAttacked() and not ghost.isDead():
                 ghost.setDead(True)
+                ghost.ghostSpeed = 1
+                ghost.row = math.floor(ghost.row)
+                ghost.col = math.floor(ghost.col)
                 ghost.setTarget()
                 self.score += self.ghostScore
                 self.ghostScore *= 2
                 pause(10000000)
+
 
         self.highScore = max(self.score, self.highScore)
 
@@ -219,7 +243,8 @@ class Game:
         # Draws game elements
         currentTile = 0
         self.displayLives()
-        for i in range(len(gameBoard) - 2):
+        self.displayScore()
+        for i in range(3, len(gameBoard) - 2):
             for j in range(len(gameBoard[0])):
                 if gameBoard[i][j] == 3: # Draw wall
                     imageName = str(currentTile)
@@ -251,10 +276,58 @@ class Game:
         # Updates the screen
         pygame.display.update()
 
+
+    # Displays the current score
+    def displayScore(self):
+        textOneUp = ["tile033.png", "tile021.png", "tile016.png"]
+        textHighScore = ["tile007.png", "tile008.png", "tile006.png", "tile007.png", "tile015.png", "tile019.png", "tile002.png", "tile014.png", "tile018.png", "tile004.png"]
+        index = 0
+        scoreStart = 5
+        highScoreStart = 11
+        for i in range(scoreStart, scoreStart+len(textOneUp)):
+            tileImage = pygame.image.load("PacmanTextSheet/" + textOneUp[index])
+            tileImage = pygame.transform.scale(tileImage, (square, square))
+            screen.blit(tileImage, (i * square, 4, square, square))
+            index += 1
+        score = str(self.score)
+        if score == "0":
+            score = "00"
+        index = 0
+        for i in range(0, len(score)):
+            digit = int(score[i])
+            tileImage = pygame.image.load("PacmanTextSheet/tile0" + str(32 + digit) + ".png")
+            tileImage = pygame.transform.scale(tileImage, (square, square))
+            screen.blit(tileImage, ((scoreStart + 2 + index) * square, square + 4, square, square))
+            index += 1
+
+        index = 0
+        for i in range(highScoreStart, highScoreStart+len(textHighScore)):
+            tileImage = pygame.image.load("PacmanTextSheet/" + textHighScore[index])
+            tileImage = pygame.transform.scale(tileImage, (square, square))
+            screen.blit(tileImage, (i * square, 4, square, square))
+            index += 1
+
+        highScore = str(self.highScore)
+        if highScore == "0":
+            highScore = "00"
+        index = 0
+        for i in range(0, len(highScore)):
+            digit = int(highScore[i])
+            tileImage = pygame.image.load("PacmanTextSheet/tile0" + str(32 + digit) + ".png")
+            tileImage = pygame.transform.scale(tileImage, (square, square))
+            screen.blit(tileImage, ((highScoreStart + 6 + index) * square, square + 4, square, square))
+            index += 1
+
+
+
+        pygame.display.update()
+
+
     def gameOverFunc(self):
         global running
         if self.gameOverCounter == 12:
             running = False
+            self.recordHighScore()
             return
 
         # Resets the screen around pacman
@@ -271,11 +344,11 @@ class Game:
     def displayLives(self):
         # 33 rows || 28 cols
         # Lives[[31, 5], [31, 3], [31, 1]]
-        livesLoc = [[31, 3], [31, 1]]
+        livesLoc = [[34, 3], [34, 1]]
         for i in range(self.lives - 1):
             lifeImage = pygame.image.load("Sprites/tile054.png")
             lifeImage = pygame.transform.scale(lifeImage, (int(square * spriteRatio), int(square * spriteRatio)))
-            screen.blit(lifeImage, (livesLoc[i][1] * square, livesLoc[i][0] * square, square, square))
+            screen.blit(lifeImage, (livesLoc[i][1] * square, livesLoc[i][0] * square - spriteOffset, square, square))
 
     def touchingPacman(self, ghost):
         if ghost.row - 0.5 <= self.pacman.row and ghost.row >= self.pacman.row and ghost.col == self.pacman.col:
@@ -292,47 +365,13 @@ class Game:
 
     def newLevel(self):
         reset()
+        self.lives += 1
         self.collected = 0
         self.levelProgress = 0
         self.levelIndex = 0
-        self.lives = 3
         self.started = False
         global gameBoard
-        gameBoard = [
-            [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-            [3,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,2,2,2,2,2,3],
-            [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
-            [3,6,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,6,3],
-            [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
-            [3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3],
-            [3,2,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,2,3],
-            [3,2,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,2,3],
-            [3,2,2,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,2,2,3],
-            [3,3,3,3,3,3,2,3,3,3,3,3,1,3,3,1,3,3,3,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,3,3,3,1,3,3,1,3,3,3,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,1,1,1,1,1,1,1,1,1,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,3,4,4,4,4,4,4,3,1,3,3,2,3,3,3,3,3,3],
-            [1,1,1,1,1,1,2,1,1,1,3,4,4,4,4,4,4,3,1,1,1,2,1,1,1,1,1,1], # Middle Lane Row: 14
-            [3,3,3,3,3,3,2,3,3,1,3,4,4,4,4,4,4,3,1,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,1,1,1,1,1,1,1,1,1,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
-            [3,3,3,3,3,3,2,3,3,1,3,3,3,3,3,3,3,3,1,3,3,2,3,3,3,3,3,3],
-            [3,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,2,2,2,2,2,3],
-            [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
-            [3,2,3,3,3,3,2,3,3,3,3,3,2,3,3,2,3,3,3,3,3,2,3,3,3,3,2,3],
-            [3,6,2,2,3,3,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,3,3,2,2,6,3],
-            [3,3,3,2,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,2,3,3,3],
-            [3,3,3,2,3,3,2,3,3,2,3,3,3,3,3,3,3,3,2,3,3,2,3,3,2,3,3,3],
-            [3,2,2,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,3,3,2,2,2,2,2,2,3],
-            [3,2,3,3,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,3,3,2,3],
-            [3,2,3,3,3,3,3,3,3,3,3,3,2,3,3,2,3,3,3,3,3,3,3,3,3,3,2,3],
-            [3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3],
-            [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-            [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-            [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
-        ]
+        gameBoard = copy.deepcopy(originalGameBoard)
         self.render()
 
     def drawTilesAround(self, row, col):
@@ -340,8 +379,8 @@ class Game:
         col = math.floor(col)
         for i in range(row-2, row+3):
             for j in range(col-2, col+3):
-                if i >= 0 and i < len(gameBoard) - 2 and j >= 0 and j < len(gameBoard[0]):
-                    imageName = str((i * len(gameBoard[0])) + j)
+                if i >= 3 and i < len(gameBoard) - 2 and j >= 0 and j < len(gameBoard[0]):
+                    imageName = str(((i - 3) * len(gameBoard[0])) + j)
                     if len(imageName) == 1:
                         imageName = "00" + imageName
                     elif len(imageName) == 2:
@@ -365,13 +404,14 @@ class Game:
         for ghost in self.ghosts:
             ghost.draw()
         self.pacman.draw()
+        self.displayScore()
         # Updates the screen
         pygame.display.update()
 
     # Flips Color of Special Tic-Taks
     def flipColor(self):
         global gameBoard
-        for i in range(len(gameBoard) - 2):
+        for i in range(3, len(gameBoard) - 2):
             for j in range(len(gameBoard[0])):
                 if gameBoard[i][j] == 5:
                     gameBoard[i][j] = 6
@@ -382,11 +422,23 @@ class Game:
 
     def getCount(self):
         total = 0
-        for i in range(len(gameBoard) - 2):
+        for i in range(3, len(gameBoard) - 2):
             for j in range(len(gameBoard[0])):
                 if gameBoard[i][j] == 2 or gameBoard[i][j] == 5 or gameBoard[i][j] == 6:
                     total += 1
         return total
+
+    def getHighScore(self):
+        file = open("highScore.txt", "r")
+        highScore = int(file.read())
+        file.close()
+        return highScore
+
+    def recordHighScore(self):
+        file = open("highScore.txt", "w").close()
+        file = open("highScore.txt", "w+")
+        file.write(str(self.highScore))
+        file.close()
 
 class Pacman:
     def __init__(self, row, col):
@@ -484,21 +536,17 @@ class Ghost:
         self.target = [-1, -1]
         self.ghostSpeed = 1/4
         self.lastLoc = [-1, -1]
-        self.attackedTimer = 120
+        self.attackedTimer = 240
         self.attackedCount = 0
-        self.deathTimer = 60
+        self.deathTimer = 120
         self.deathCount = 0
 
     def update(self):
+        print(self.row, self.col)
         if self.target == [-1, -1] or (self.row == self.target[0] and self.col == self.target[1]) or gameBoard[int(self.row)][int(self.col)] == 4 or self.dead:
             self.setTarget()
         self.setDir()
         self.move()
-
-        if self.dead:
-            self.ghostSpeed = 1
-            self.row = math.floor(self.row)
-            self.col = math.floor(self.col)
 
         if self.attacked:
             self.attackedCount += 1
@@ -506,11 +554,12 @@ class Ghost:
         if self.attacked and not self.dead:
             self.ghostSpeed = 1/8
 
-        elif not self.attacked and not self.dead:
-            self.ghostSpeed = 1/4
-
-
         if self.attackedCount == self.attackedTimer and self.attacked:
+            if not self.dead:
+                self.ghostSpeed = 1/4
+                self.row = math.floor(self.row)
+                self.col = math.floor(self.col)
+
             self.attackedCount = 0
             self.attacked = False
             self.setTarget()
@@ -521,6 +570,7 @@ class Ghost:
             if self.deathCount == self.deathTimer:
                 self.deathCount = 0
                 self.dead = False
+                self.ghostSpeed = 1/4
 
     def draw(self): # Ghosts states: Alive, Attacked, Dead Attributes: Color, Direction, Location
         ghostImage = pygame.image.load("Sprites/tile152.png")
@@ -534,7 +584,7 @@ class Ghost:
             ghostImage = pygame.image.load("Sprites/tile" + str(tileNum) + ".png")
         elif self.attacked:
             if self.attackedTimer - self.attackedCount < self.attackedTimer//3:
-                if (self.attackedTimer - self.attackedCount) % 17 < 13:
+                if (self.attackedTimer - self.attackedCount) % 31 < 26:
                     ghostImage = pygame.image.load("Sprites/tile0" + str(70 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
                 else:
                     ghostImage = pygame.image.load("Sprites/tile0" + str(72 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
@@ -561,7 +611,7 @@ class Ghost:
         screen.blit(ghostImage, (self.col * square + spriteOffset, self.row * square + spriteOffset, square, square))
 
     def isValidTwo(self, cRow, cCol, dist, visited):
-        if cRow < 0 or cRow >= len(gameBoard) - 2 or cCol < 0 or cCol >= len(gameBoard[0]) or gameBoard[cRow][cCol] == 3:
+        if cRow < 3 or cRow >= len(gameBoard) - 5 or cCol < 0 or cCol >= len(gameBoard[0]) or gameBoard[cRow][cCol] == 3:
             return False
         elif visited[cRow][cCol] <= dist:
             return False
@@ -695,8 +745,8 @@ class Ghost:
         return self.dead
 
 game = Game(1, 0)
-ghostsafeArea = [12, 13] # The location the ghosts escape to when attacked
-ghostGate = [[12, 13], [12, 14]]
+ghostsafeArea = [15, 13] # The location the ghosts escape to when attacked
+ghostGate = [[15, 13], [15, 14]]
 
 
 def canMove(row, col):
@@ -710,10 +760,10 @@ def canMove(row, col):
 def reset():
     global game
     # ghosts = [Ghost(7, 6), Ghost(6, 6), Ghost(5, 6)]
-    game.ghosts = [Ghost(11.0, 13.5, "red", 0), Ghost(14.0, 11.5, "blue", 1), Ghost(14.0, 13.5, "pink", 2), Ghost(14.0, 15.5, "orange", 3)]
+    game.ghosts = [Ghost(14.0, 13.5, "red", 0), Ghost(17.0, 11.5, "blue", 1), Ghost(17.0, 13.5, "pink", 2), Ghost(17.0, 15.5, "orange", 3)]
     for ghost in game.ghosts:
         ghost.setTarget()
-    game.pacman = Pacman(23.0, 13.5)
+    game.pacman = Pacman(26.0, 13.5)
     game.lives -= 1
     game.paused = True
     game.render()
@@ -730,6 +780,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            game.recordHighScore()
         elif event.type == pygame.KEYDOWN:
             game.paused = False
             game.started = True
@@ -743,4 +794,5 @@ while running:
                 game.pacman.newDir = 3
             elif event.key == pygame.K_q:
                 running = False
+                game.recordHighScore()
     game.update()
