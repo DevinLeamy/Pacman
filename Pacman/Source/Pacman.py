@@ -15,6 +15,11 @@ import copy
 
 
 
+BoardPath = "../Assets/BoardImages/"
+ElementPath = "../Assets/ElementImages/"
+TextPath = "../Assets/TextImages/"
+DataPath = "../Assets/Data/"
+
 # 28 Across 31 Tall 1: Empty Space 2: Tic-Tak 3: Wall 4: Ghost safe-space 5: Special Tic-Tak
 originalGameBoard = [
     [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
@@ -58,7 +63,7 @@ gameBoard = copy.deepcopy(originalGameBoard)
 spriteRatio = 3/2
 square = 30 # Size of each unit square
 spriteOffset = square * (1 - spriteRatio) * (1/2)
-(width, height) = (len(gameBoard[0]) * square + 1, len(gameBoard) * square) # Game screen
+(width, height) = (len(gameBoard[0]) * square, len(gameBoard) * square) # Game screen
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
 
@@ -254,7 +259,7 @@ class Game:
                          imageName = "0" + imageName
                     # Get image of desired tile
                     imageName = "tile" + imageName + ".png"
-                    tileImage = pygame.image.load("../Assets/GameBoardImages/" + imageName)
+                    tileImage = pygame.image.load(BoardPath + imageName)
                     tileImage = pygame.transform.scale(tileImage, (square, square))
 
                     #Display image of tile
@@ -285,7 +290,7 @@ class Game:
         scoreStart = 5
         highScoreStart = 11
         for i in range(scoreStart, scoreStart+len(textOneUp)):
-            tileImage = pygame.image.load("../Assets/TextImages/" + textOneUp[index])
+            tileImage = pygame.image.load(TextPath + textOneUp[index])
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, (i * square, 4, square, square))
             index += 1
@@ -295,14 +300,14 @@ class Game:
         index = 0
         for i in range(0, len(score)):
             digit = int(score[i])
-            tileImage = pygame.image.load("../Assets/TextImages/tile0" + str(32 + digit) + ".png")
+            tileImage = pygame.image.load(TextPath + "tile0" + str(32 + digit) + ".png")
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, ((scoreStart + 2 + index) * square, square + 4, square, square))
             index += 1
 
         index = 0
         for i in range(highScoreStart, highScoreStart+len(textHighScore)):
-            tileImage = pygame.image.load("../Assets/TextImages/" + textHighScore[index])
+            tileImage = pygame.image.load(TextPath + textHighScore[index])
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, (i * square, 4, square, square))
             index += 1
@@ -313,7 +318,7 @@ class Game:
         index = 0
         for i in range(0, len(highScore)):
             digit = int(highScore[i])
-            tileImage = pygame.image.load("../Assets/TextImages/tile0" + str(32 + digit) + ".png")
+            tileImage = pygame.image.load(TextPath + "tile0" + str(32 + digit) + ".png")
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, ((highScoreStart + 6 + index) * square, square + 4, square, square))
             index += 1
@@ -334,7 +339,7 @@ class Game:
         self.drawTilesAround(self.pacman.row, self.pacman.col)
 
         # Draws new image
-        pacmanImage = pygame.image.load("../Assets/GameElementImages/tile" + str(116 + self.gameOverCounter) + ".png")
+        pacmanImage = pygame.image.load(ElementPath + "tile" + str(116 + self.gameOverCounter) + ".png")
         pacmanImage = pygame.transform.scale(pacmanImage, (int(square * spriteRatio), int(square * spriteRatio)))
         screen.blit(pacmanImage, (self.pacman.col * square + spriteOffset, self.pacman.row * square + spriteOffset, square, square))
         pygame.display.update()
@@ -346,7 +351,7 @@ class Game:
         # Lives[[31, 5], [31, 3], [31, 1]]
         livesLoc = [[34, 3], [34, 1]]
         for i in range(self.lives - 1):
-            lifeImage = pygame.image.load("../Assets/GameElementImages/tile054.png")
+            lifeImage = pygame.image.load(ElementPath + "tile054.png")
             lifeImage = pygame.transform.scale(lifeImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(lifeImage, (livesLoc[i][1] * square, livesLoc[i][0] * square - spriteOffset, square, square))
 
@@ -387,7 +392,7 @@ class Game:
                          imageName = "0" + imageName
                     # Get image of desired tile
                     imageName = "tile" + imageName + ".png"
-                    tileImage = pygame.image.load("../Assets/GameBoardImages/" + imageName)
+                    tileImage = pygame.image.load(BoardPath + imageName)
                     tileImage = pygame.transform.scale(tileImage, (square, square))
                     #Display image of tile
                     screen.blit(tileImage, (j * square, i * square, square, square))
@@ -429,14 +434,14 @@ class Game:
         return total
 
     def getHighScore(self):
-        file = open("../Assets/Data/HighScore.txt", "r")
+        file = open(DataPath + "HighScore.txt", "r")
         highScore = int(file.read())
         file.close()
         return highScore
 
     def recordHighScore(self):
-        file = open("../Assets/Data/HighScore.txt", "w").close()
-        file = open("../Assets/Data/HighScore.txt", "w+")
+        file = open(DataPath + "HighScore.txt", "w").close()
+        file = open(DataPath + "HighScore.txt", "w+")
         file.write(str(self.highScore))
         file.close()
 
@@ -489,7 +494,7 @@ class Pacman:
     # Draws pacman based on his current state
     def draw(self):
         if not game.started:
-            pacmanImage = pygame.image.load("../Assets/GameElementImages/tile112.png")
+            pacmanImage = pygame.image.load(ElementPath + "tile112.png")
             pacmanImage = pygame.transform.scale(pacmanImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(pacmanImage, (self.col * square + spriteOffset, self.row * square + spriteOffset, square, square))
             return
@@ -501,24 +506,24 @@ class Pacman:
         # pacmanImage = pygame.image.load("Sprites/tile049.png")
         if self.dir == 0:
             if self.mouthOpen:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile049.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile049.png")
             else:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile051.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile051.png")
         elif self.dir == 1:
             if self.mouthOpen:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile052.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile052.png")
             else:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile054.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile054.png")
         elif self.dir == 2:
             if self.mouthOpen:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile053.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile053.png")
             else:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile055.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile055.png")
         elif self.dir == 3:
             if self.mouthOpen:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile048.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile048.png")
             else:
-                pacmanImage = pygame.image.load("../Assets/GameElementImages/tile050.png")
+                pacmanImage = pygame.image.load(ElementPath + "tile050.png")
 
         pacmanImage = pygame.transform.scale(pacmanImage, (int(square * spriteRatio), int(square * spriteRatio)))
         screen.blit(pacmanImage, (self.col * square + spriteOffset, self.row * square + spriteOffset, square, square))
@@ -573,7 +578,7 @@ class Ghost:
                 self.ghostSpeed = 1/4
 
     def draw(self): # Ghosts states: Alive, Attacked, Dead Attributes: Color, Direction, Location
-        ghostImage = pygame.image.load("../Assets/GameElementImages/tile152.png")
+        ghostImage = pygame.image.load(ElementPath + "tile152.png")
         currentDir = ((self.dir + 3) % 4) * 2
         if self.changeFeetCount == self.changeFeetDelay:
             self.changeFeetCount = 0
@@ -581,31 +586,31 @@ class Ghost:
         self.changeFeetCount += 1
         if self.dead:
             tileNum = 152 + currentDir
-            ghostImage = pygame.image.load("../Assets/GameElementImages/tile" + str(tileNum) + ".png")
+            ghostImage = pygame.image.load(ElementPath + "tile" + str(tileNum) + ".png")
         elif self.attacked:
             if self.attackedTimer - self.attackedCount < self.attackedTimer//3:
                 if (self.attackedTimer - self.attackedCount) % 31 < 26:
-                    ghostImage = pygame.image.load("../Assets/GameElementImages/tile0" + str(70 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
+                    ghostImage = pygame.image.load(ElementPath + "tile0" + str(70 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
                 else:
-                    ghostImage = pygame.image.load("../Assets/GameElementImages/tile0" + str(72 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
+                    ghostImage = pygame.image.load(ElementPath + "tile0" + str(72 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
             else:
-                ghostImage = pygame.image.load("../Assets/GameElementImages/tile0" + str(72 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
+                ghostImage = pygame.image.load(ElementPath + "tile0" + str(72 + (currentDir - (((self.dir + 3) % 4) * 2))) + ".png")
         else:
             if self.color == "blue":
                 tileNum = 136 + currentDir
-                ghostImage = pygame.image.load("../Assets/GameElementImages/tile" + str(tileNum) + ".png")
+                ghostImage = pygame.image.load(ElementPath + "tile" + str(tileNum) + ".png")
             elif self.color == "pink":
                 tileNum = 128 + currentDir
-                ghostImage = pygame.image.load("../Assets/GameElementImages/tile" + str(tileNum) + ".png")
+                ghostImage = pygame.image.load(ElementPath + "tile" + str(tileNum) + ".png")
             elif self.color == "orange":
                 tileNum = 144 + currentDir
-                ghostImage = pygame.image.load("../Assets/GameElementImages/tile" + str(tileNum) + ".png")
+                ghostImage = pygame.image.load(ElementPath + "tile" + str(tileNum) + ".png")
             elif self.color == "red":
                 tileNum = 96 + currentDir
                 if tileNum < 100:
-                    ghostImage = pygame.image.load("../Assets/GameElementImages/tile0" + str(tileNum) + ".png")
+                    ghostImage = pygame.image.load(ElementPath + "tile0" + str(tileNum) + ".png")
                 else:
-                    ghostImage = pygame.image.load("../Assets/GameElementImages/tile" + str(tileNum) + ".png")
+                    ghostImage = pygame.image.load(ElementPath + "tile" + str(tileNum) + ".png")
 
         ghostImage = pygame.transform.scale(ghostImage, (int(square * spriteRatio), int(square * spriteRatio)))
         screen.blit(ghostImage, (self.col * square + spriteOffset, self.row * square + spriteOffset, square, square))
