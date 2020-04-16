@@ -5,9 +5,6 @@ import random
 import copy
 
 # Things to add / change
-# - Make individual ghosts "hunt"
-# - Generate levels by progressively increasing the number of ghosts that "hunt"
-# and the duration of their hunt
 # - Add Launch screen and game over screen
 # - Add click to play and game over banners
 
@@ -84,10 +81,15 @@ class Game:
         self.pacman = Pacman(26.0, 13.5) # Center of Second Last Row
         self.total = self.getCount()
         self.ghostScore = 200
-        self.levels = [[140, 70, 140, 70], [120, 50, 100, 120], [40, 200, 40, 200]]
-        self.levelProgress = 0
-        self.levelIndex = 0
-        self.hunting = False
+        self.levels = [[500, 100], [300, 300], [300, 300], [0, 600]]
+        random.shuffle(self.levels)
+        # Level index and Level Progress
+        self.ghostStates = [[1, 0], [0, 0], [1, 0], [0, 0]]
+        index = 0
+        for state in self.ghostStates:
+            state[0] = randrange(2)
+            state[1] = randrange(self.levels[index][state[0]] + 1)
+            index += 1
         self.collected = 0
         self.started = False
         self.gameOver = False
@@ -95,7 +97,7 @@ class Game:
         self.points = []
         self.pointsTimer = 10
         # Berry Spawn Time, Berry Death Time, Berry Eaten
-        self.berryState = [200, 500, False]
+        self.berryState = [200, 400, False]
         self.berryLocation = [20.0, 13.5]
         self.berries = ["tile080.png", "tile081.png", "tile082.png", "tile083.png", "tile084.png", "tile085.png", "tile086.png", "tile087.png"]
         self.levelTimer = 0
@@ -103,7 +105,7 @@ class Game:
 
     # Driver method: The games primary update method
     def update(self):
-        # print(self.score)
+        print(self.ghostStates)
         if self.gameOver:
             self.gameOverFunc()
             return
@@ -116,17 +118,6 @@ class Game:
         self.pacmanUpdateCount += 1
         self.tictakChangeCount += 1
         self.ghostsAttacked = False
-        self.levelProgress += 1
-
-        # print(self.levelProgress)
-        if self.levelProgress == self.levels[self.level-1][self.levelIndex]:
-            self.levelProgress = 0
-            self.levelIndex += 1
-            self.levelIndex = self.levelIndex % 4
-            if self.levelIndex % 2 == 1:
-                self.hunting = True
-            else:
-                self.hunting = False
 
         # Draw tiles around ghosts and pacman
         self.clearBoard()
@@ -135,10 +126,20 @@ class Game:
                 self.ghostsAttacked = True
 
         # Check if the ghost should case pacman
-        if self.hunting:
-            for ghost in self.ghosts:
-                if not ghost.attacked and not ghost.dead:
-                    ghost.target = [self.pacman.row, self.pacman.col]
+        index = 0
+        for state in self.ghostStates:
+            state[1] += 1
+            if state[1] >= self.levels[index][state[0]]:
+                state[1] = 0
+                state[0] += 1
+                state[0] %= 2
+            index += 1
+
+        index = 0
+        for ghost in self.ghosts:
+            if not ghost.attacked and not ghost.dead and self.ghostStates[index][0] == 0:
+                ghost.target = [self.pacman.row, self.pacman.col]
+            index += 1
 
 
         # Check if pacman got killed
@@ -248,7 +249,7 @@ class Game:
             self.level += 1
             self.newLevel()
 
-        if self.level - 1 == len(self.levels):
+        if self.level - 1 == 6:
             print("You win", self.level, len(self.levels))
             running = False
         self.softRender()
@@ -364,7 +365,7 @@ class Game:
 
     def drawBerry(self):
         if self.levelTimer in range(self.berryState[0], self.berryState[1]) and not self.berryState[2]:
-            print("here")
+            # print("here")
             berryImage = pygame.image.load(ElementPath + self.berries[self.level - 1])
             berryImage = pygame.transform.scale(berryImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(berryImage, (self.berryLocation[1] * square, self.berryLocation[0] * square, square, square))
@@ -427,11 +428,18 @@ class Game:
         reset()
         self.lives += 1
         self.collected = 0
-        self.levelProgress = 0
-        self.levelIndex = 0
         self.started = False
-        self.berryState = [200, 300, False]
+        self.berryState = [200, 400, False]
         self.levelTimer = 0
+        for level in self.levels:
+            level[0] = min(500, level[0] + 50)
+            level[1] = max(100, level[1] - 50)
+        random.shuffle(self.levels)
+        index = 0
+        for state in self.ghostStates:
+            state[0] = randrange(2)
+            state[1] = randrange(self.levels[index][state[0]] + 1)
+            index += 1
         global gameBoard
         gameBoard = copy.deepcopy(originalGameBoard)
         self.render()
@@ -595,7 +603,7 @@ class Ghost:
         self.deathCount = 0
 
     def update(self):
-        print(self.row, self.col)
+        # print(self.row, self.col)
         if self.target == [-1, -1] or (self.row == self.target[0] and self.col == self.target[1]) or gameBoard[int(self.row)][int(self.col)] == 4 or self.dead:
             self.setTarget()
         self.setDir()
