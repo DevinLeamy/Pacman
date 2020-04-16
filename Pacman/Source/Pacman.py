@@ -8,8 +8,6 @@ import copy
 # - Make individual ghosts "hunt"
 # - Generate levels by progressively increasing the number of ghosts that "hunt"
 # and the duration of their hunt
-# - Add the fruits
-# - Display score gotten from fruits and ghost
 # - Add Launch screen and game over screen
 # - Add click to play and game over banners
 
@@ -96,10 +94,12 @@ class Game:
         self.gameOverCounter = 0
         self.points = []
         self.pointsTimer = 10
-        self.berrySpawnDelay = 200
-        self.berryAliveTimer = 100
-        self.berryLocation = [22.0, 13.5]
-
+        # Berry Spawn Time, Berry Death Time, Berry Eaten
+        self.berryState = [200, 400, False]
+        self.berryLocation = [20.0, 13.5]
+        self.berries = ["tile080.png", "tile081.png", "tile082.png", "tile083.png", "tile084.png", "tile085.png", "tile086.png", "tile087.png"]
+        self.levelTimer = 0
+        self.berryScore = 1000
 
     # Driver method: The games primary update method
     def update(self):
@@ -111,7 +111,7 @@ class Game:
             return
 
         # print(self.hunting)
-
+        self.levelTimer += 1
         self.ghostUpdateCount += 1
         self.pacmanUpdateCount += 1
         self.tictakChangeCount += 1
@@ -135,7 +135,7 @@ class Game:
                 self.ghostsAttacked = True
 
         self.drawTilesAround(self.pacman.row, self.pacman.col)
-
+        self.drawTilesAround(self.berryLocation[0], self.berryLocation[1])
         # Check if the ghost should case pacman
         if self.hunting:
             for ghost in self.ghosts:
@@ -169,6 +169,9 @@ class Game:
                 self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
                 self.ghostScore *= 2
                 pause(10000000)
+            if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
+                self.berryState[2] = True
+                self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
 
         if self.ghostUpdateCount == self.ghostUpdateDelay:
             # print("Update Ghosts")
@@ -234,6 +237,9 @@ class Game:
                 self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
                 self.ghostScore *= 2
                 pause(10000000)
+            if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
+                self.berryState[2] = True
+                self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
 
 
         self.highScore = max(self.score, self.highScore)
@@ -305,6 +311,7 @@ class Game:
         self.displayScore()
         for point in pointsToDraw:
             self.drawPoints(point[0], point[1], point[2])
+        self.drawBerry()
         # Updates the screen
         pygame.display.update()
 
@@ -348,6 +355,14 @@ class Game:
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, ((highScoreStart + 6 + index) * square, square + 4, square, square))
             index += 1
+        pygame.display.update()
+
+    def drawBerry(self):
+        if self.levelTimer in range(self.berryState[0], self.berryState[1]) and not self.berryState[2]:
+            print("here")
+            berryImage = pygame.image.load(ElementPath + self.berries[self.level - 1])
+            berryImage = pygame.transform.scale(berryImage, (int(square * spriteRatio), int(square * spriteRatio)))
+            screen.blit(berryImage, (self.berryLocation[1] * square, self.berryLocation[0] * square, square, square))
         pygame.display.update()
 
 
@@ -410,6 +425,8 @@ class Game:
         self.levelProgress = 0
         self.levelIndex = 0
         self.started = False
+        self.berryState = [200, 300, False]
+        self.levelTimer = 0
         global gameBoard
         gameBoard = copy.deepcopy(originalGameBoard)
         self.render()
