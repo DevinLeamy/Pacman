@@ -8,8 +8,6 @@ import copy
 # - Add Launch screen and game over screen
 # - Add click to play and game over banners
 
-
-
 BoardPath = "../Assets/BoardImages/"
 ElementPath = "../Assets/ElementImages/"
 TextPath = "../Assets/TextImages/"
@@ -81,7 +79,7 @@ class Game:
         self.pacman = Pacman(26.0, 13.5) # Center of Second Last Row
         self.total = self.getCount()
         self.ghostScore = 200
-        self.levels = [[500, 100], [300, 300], [300, 300], [0, 600]]
+        self.levels = [[400, 200], [200, 400], [200, 400], [0, 600]]
         random.shuffle(self.levels)
         # Level index and Level Progress
         self.ghostStates = [[1, 0], [0, 0], [1, 0], [0, 0]]
@@ -100,8 +98,11 @@ class Game:
         self.berryState = [200, 400, False]
         self.berryLocation = [20.0, 13.5]
         self.berries = ["tile080.png", "tile081.png", "tile082.png", "tile083.png", "tile084.png", "tile085.png", "tile086.png", "tile087.png"]
+        self.berriesCollected = []
         self.levelTimer = 0
         self.berryScore = 1000
+        self.lockedInTimer = 100
+        self.lockedIn = True
 
     # Driver method: The games primary update method
     def update(self):
@@ -141,6 +142,8 @@ class Game:
                 ghost.target = [self.pacman.row, self.pacman.col]
             index += 1
 
+        if self.levelTimer == self.lockedInTimer:
+            self.lockedIn = False
 
         # Check if pacman got killed
         for ghost in self.ghosts:
@@ -171,6 +174,7 @@ class Game:
             if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
                 self.berryState[2] = True
                 self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
+                self.berriesCollected.append(self.berries[(self.level - 1) % 8])
 
         if self.ghostUpdateCount == self.ghostUpdateDelay:
             # print("Update Ghosts")
@@ -239,6 +243,7 @@ class Game:
             if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
                 self.berryState[2] = True
                 self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
+                self.berriesCollected.append(self.berries[(self.level - 1) % 8])
 
 
         self.highScore = max(self.score, self.highScore)
@@ -249,7 +254,7 @@ class Game:
             self.level += 1
             self.newLevel()
 
-        if self.level - 1 == 6:
+        if self.level - 1 == 8: #(self.levels[0][0] + self.levels[0][1]) // 50:
             print("You win", self.level, len(self.levels))
             running = False
         self.softRender()
@@ -293,6 +298,7 @@ class Game:
         # Updates the screen
         pygame.display.update()
 
+
     def softRender(self):
         pointsToDraw = []
         for point in self.points:
@@ -308,6 +314,7 @@ class Game:
             ghost.draw()
         self.pacman.draw()
         self.displayScore()
+        self.displayBerries()
         for point in pointsToDraw:
             self.drawPoints(point[0], point[1], point[2])
         self.drawBerry()
@@ -366,10 +373,10 @@ class Game:
     def drawBerry(self):
         if self.levelTimer in range(self.berryState[0], self.berryState[1]) and not self.berryState[2]:
             # print("here")
-            berryImage = pygame.image.load(ElementPath + self.berries[self.level - 1])
+            berryImage = pygame.image.load(ElementPath + self.berries[(self.level - 1) % 8])
             berryImage = pygame.transform.scale(berryImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(berryImage, (self.berryLocation[1] * square, self.berryLocation[0] * square, square, square))
-        pygame.display.update()
+        # pygame.display.update()
 
 
     def drawPoints(self, points, row, col):
@@ -410,6 +417,12 @@ class Game:
             lifeImage = pygame.image.load(ElementPath + "tile054.png")
             lifeImage = pygame.transform.scale(lifeImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(lifeImage, (livesLoc[i][1] * square, livesLoc[i][0] * square - spriteOffset, square, square))
+    def displayBerries(self):
+        firstBerrie = [34, 26]
+        for i in range(len(self.berriesCollected)):
+            berrieImage = pygame.image.load(ElementPath + self.berriesCollected[i])
+            berrieImage = pygame.transform.scale(berrieImage, (int(square * spriteRatio), int(square * spriteRatio)))
+            screen.blit(berrieImage, ((firstBerrie[1] - (2*i)) * square, firstBerrie[0] * square + 5, square, square))
 
     def touchingPacman(self, row, col):
         if row - 0.5 <= self.pacman.row and row >= self.pacman.row and col == self.pacman.col:
@@ -431,8 +444,9 @@ class Game:
         self.started = False
         self.berryState = [200, 400, False]
         self.levelTimer = 0
+        self.lockedIn = True
         for level in self.levels:
-            level[0] = min(500, level[0] + 50)
+            level[0] = min((level[0] + level[1]) - 100, level[0] + 50)
             level[1] = max(100, level[1] - 50)
         random.shuffle(self.levels)
         index = 0
@@ -689,7 +703,7 @@ class Ghost:
         if not ghostGate.count([cRow, cCol]) == 0:
             if self.dead and self.row < cRow:
                 return True
-            elif self.row > cRow and not self.dead and not self.attacked:
+            elif self.row > cRow and not self.dead and not self.attacked and not game.lockedIn:
                 return True
             else:
                 return False
