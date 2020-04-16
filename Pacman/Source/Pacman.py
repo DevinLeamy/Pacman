@@ -94,6 +94,11 @@ class Game:
         self.started = False
         self.gameOver = False
         self.gameOverCounter = 0
+        self.points = []
+        self.pointsTimer = 10
+        self.berrySpawnDelay = 200
+        self.berryAliveTimer = 100
+        self.berryLocation = [22.0, 13.5]
 
 
     # Driver method: The games primary update method
@@ -140,7 +145,7 @@ class Game:
 
         # Check if pacman got killed
         for ghost in self.ghosts:
-            if self.touchingPacman(ghost) and not ghost.attacked:
+            if self.touchingPacman(ghost.row, ghost.col) and not ghost.attacked:
                 if self.lives == 1:
                     print("You lose")
                     self.gameOver = True
@@ -154,13 +159,14 @@ class Game:
                     return
                 self.started = False
                 reset()
-            elif self.touchingPacman(ghost) and ghost.isAttacked() and not ghost.isDead():
+            elif self.touchingPacman(ghost.row, ghost.col) and ghost.isAttacked() and not ghost.isDead():
                 ghost.setDead(True)
                 ghost.setTarget()
                 ghost.ghostSpeed = 1
                 self.row = math.floor(self.row)
                 self.col = math.floor(self.col)
                 self.score += self.ghostScore
+                self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
                 self.ghostScore *= 2
                 pause(10000000)
 
@@ -204,7 +210,7 @@ class Game:
 
         # Check if pacman got killed
         for ghost in self.ghosts:
-            if self.touchingPacman(ghost) and not ghost.attacked:
+            if self.touchingPacman(ghost.row, ghost.col) and not ghost.attacked:
                 if self.lives == 1:
                     print("You lose")
                     self.gameOver = True
@@ -218,13 +224,14 @@ class Game:
                     return
                 self.started = False
                 reset()
-            elif self.touchingPacman(ghost) and ghost.isAttacked() and not ghost.isDead():
+            elif self.touchingPacman(ghost.row, ghost.col) and ghost.isAttacked() and not ghost.isDead():
                 ghost.setDead(True)
                 ghost.ghostSpeed = 1
                 ghost.row = math.floor(ghost.row)
                 ghost.col = math.floor(ghost.col)
                 ghost.setTarget()
                 self.score += self.ghostScore
+                self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
                 self.ghostScore *= 2
                 pause(10000000)
 
@@ -281,6 +288,25 @@ class Game:
         # Updates the screen
         pygame.display.update()
 
+    def softRender(self):
+        pointsToDraw = []
+        for point in self.points:
+            if point[3] < self.pointsTimer:
+                pointsToDraw.append([point[2], point[0], point[1]])
+                point[3] += 1
+            else:
+                self.points.remove(point)
+                self.drawTilesAround(point[0], point[1])
+
+        # Draw Sprites
+        for ghost in self.ghosts:
+            ghost.draw()
+        self.pacman.draw()
+        self.displayScore()
+        for point in pointsToDraw:
+            self.drawPoints(point[0], point[1], point[2])
+        # Updates the screen
+        pygame.display.update()
 
     # Displays the current score
     def displayScore(self):
@@ -322,9 +348,18 @@ class Game:
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, ((highScoreStart + 6 + index) * square, square + 4, square, square))
             index += 1
+        pygame.display.update()
 
 
-
+    def drawPoints(self, points, row, col):
+        pointStr = str(points)
+        index = 0
+        for i in range(len(pointStr)):
+            digit = int(pointStr[i])
+            tileImage = pygame.image.load(TextPath + "tile" + str(224 + digit) + ".png")
+            tileImage = pygame.transform.scale(tileImage, (square//2, square//2))
+            screen.blit(tileImage, ((col) * square + (square//2 * index), row * square - 20, square//2, square//2))
+            index += 1
         pygame.display.update()
 
 
@@ -355,16 +390,16 @@ class Game:
             lifeImage = pygame.transform.scale(lifeImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(lifeImage, (livesLoc[i][1] * square, livesLoc[i][0] * square - spriteOffset, square, square))
 
-    def touchingPacman(self, ghost):
-        if ghost.row - 0.5 <= self.pacman.row and ghost.row >= self.pacman.row and ghost.col == self.pacman.col:
+    def touchingPacman(self, row, col):
+        if row - 0.5 <= self.pacman.row and row >= self.pacman.row and col == self.pacman.col:
             return True
-        elif ghost.row + 0.5 >= self.pacman.row and ghost.row <= self.pacman.row and ghost.col == self.pacman.col:
+        elif row + 0.5 >= self.pacman.row and row <= self.pacman.row and col == self.pacman.col:
             return True
-        elif ghost.row == self.pacman.row and ghost.col - 0.5 <= self.pacman.col and ghost.col >= self.pacman.col:
+        elif row == self.pacman.row and col - 0.5 <= self.pacman.col and col >= self.pacman.col:
             return True
-        elif ghost.row == self.pacman.row and ghost.col + 0.5 >= self.pacman.col and ghost.col <= self.pacman.col:
+        elif row == self.pacman.row and col + 0.5 >= self.pacman.col and col <= self.pacman.col:
             return True
-        elif ghost.row == self.pacman.row and ghost.col == self.pacman.col:
+        elif row == self.pacman.row and col == self.pacman.col:
             return True
         return False
 
@@ -403,15 +438,6 @@ class Game:
                         pygame.draw.circle(screen, (0, 0, 0),(j * square + square//2, i * square + square//2), square//2)
                     elif gameBoard[i][j] == 6: #White Special Tic-Tak
                         pygame.draw.circle(screen, (165, 93, 53),(j * square + square//2, i * square + square//2), square//2)
-
-    def softRender(self):
-        # Draw Sprites
-        for ghost in self.ghosts:
-            ghost.draw()
-        self.pacman.draw()
-        self.displayScore()
-        # Updates the screen
-        pygame.display.update()
 
     # Flips Color of Special Tic-Taks
     def flipColor(self):
