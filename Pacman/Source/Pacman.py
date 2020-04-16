@@ -95,7 +95,7 @@ class Game:
         self.points = []
         self.pointsTimer = 10
         # Berry Spawn Time, Berry Death Time, Berry Eaten
-        self.berryState = [200, 400, False]
+        self.berryState = [200, 500, False]
         self.berryLocation = [20.0, 13.5]
         self.berries = ["tile080.png", "tile081.png", "tile082.png", "tile083.png", "tile084.png", "tile085.png", "tile086.png", "tile087.png"]
         self.levelTimer = 0
@@ -129,13 +129,11 @@ class Game:
                 self.hunting = False
 
         # Draw tiles around ghosts and pacman
+        self.clearBoard()
         for ghost in self.ghosts:
-            self.drawTilesAround(ghost.row, ghost.col)
             if ghost.attacked:
                 self.ghostsAttacked = True
 
-        self.drawTilesAround(self.pacman.row, self.pacman.col)
-        self.drawTilesAround(self.berryLocation[0], self.berryLocation[1])
         # Check if the ghost should case pacman
         if self.hunting:
             for ghost in self.ghosts:
@@ -315,6 +313,13 @@ class Game:
         # Updates the screen
         pygame.display.update()
 
+    def clearBoard(self):
+            # Draw tiles around ghosts and pacman
+            for ghost in self.ghosts:
+                self.drawTilesAround(ghost.row, ghost.col)
+            self.drawTilesAround(self.pacman.row, self.pacman.col)
+            self.drawTilesAround(self.berryLocation[0], self.berryLocation[1])
+
     # Displays the current score
     def displayScore(self):
         textOneUp = ["tile033.png", "tile021.png", "tile016.png"]
@@ -355,7 +360,7 @@ class Game:
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, ((highScoreStart + 6 + index) * square, square + 4, square, square))
             index += 1
-        pygame.display.update()
+        # pygame.display.update()
 
     def drawBerry(self):
         if self.levelTimer in range(self.berryState[0], self.berryState[1]) and not self.berryState[2]:
@@ -375,7 +380,7 @@ class Game:
             tileImage = pygame.transform.scale(tileImage, (square//2, square//2))
             screen.blit(tileImage, ((col) * square + (square//2 * index), row * square - 20, square//2, square//2))
             index += 1
-        pygame.display.update()
+        # pygame.display.update()
 
 
     def gameOverFunc(self):
