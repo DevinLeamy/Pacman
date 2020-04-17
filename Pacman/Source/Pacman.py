@@ -308,6 +308,9 @@ class Game:
             else:
                 self.points.remove(point)
                 self.drawTilesAround(point[0], point[1])
+                
+        for point in pointsToDraw:
+            self.drawPoints(point[0], point[1], point[2])
 
         # Draw Sprites
         for ghost in self.ghosts:
@@ -315,8 +318,8 @@ class Game:
         self.pacman.draw()
         self.displayScore()
         self.displayBerries()
-        for point in pointsToDraw:
-            self.drawPoints(point[0], point[1], point[2])
+        # for point in pointsToDraw:
+        #     self.drawPoints(point[0], point[1], point[2])
         self.drawBerry()
         # Updates the screen
         pygame.display.update()
