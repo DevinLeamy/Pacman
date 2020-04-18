@@ -10,7 +10,7 @@ A very simple iteration of the retro game 'Snake' <br/> <br/>
 - In terminal, navigate to the Snake.py <br/>
 - Type python3 Snake.py and hit enter
 # Pacman.py
-The retro game 'Pacman' in all its beauty <br/> <br/>
+The 80's classic 'Pacman' in all its beauty <br/> <br/>
 **Deployment:**
 - Download the Pacman Assets and Source folders and store them in the same folder <br/>
 - Download Python3 [https://www.python.org/downloads/] <br/>
