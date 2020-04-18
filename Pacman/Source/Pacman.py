@@ -4,9 +4,6 @@ from random import randrange
 import random
 import copy
 
-# Things to add / change
-# - Add siren sound 
-
 BoardPath = "../Assets/BoardImages/"
 ElementPath = "../Assets/ElementImages/"
 TextPath = "../Assets/TextImages/"
@@ -14,7 +11,7 @@ DataPath = "../Assets/Data/"
 MusicPath = "../Assets/Music/"
 
 pygame.mixer.init()
-# pygame.mixer.music.stop()
+pygame.init()
 print(pygame.mixer.music.get_busy())
 
 # 28 Across 31 Tall 1: Empty Space 2: Tic-Tak 3: Wall 4: Ghost safe-space 5: Special Tic-Tak
@@ -63,6 +60,9 @@ spriteOffset = square * (1 - spriteRatio) * (1/2)
 (width, height) = (len(gameBoard[0]) * square, len(gameBoard) * square) # Game screen
 screen = pygame.display.set_mode((width, height))
 pygame.display.flip()
+musicPlaying = 0 # 0: Chomp, 1: Important, 2: Siren
+# pelletColor = (165, 93, 53)
+pelletColor = (222, 161, 133)
 
 
 class Game:
@@ -112,8 +112,8 @@ class Game:
 
     # Driver method: The games primary update method
     def update(self):
+        # pygame.image.unload()
         print(self.ghostStates)
-
         if self.gameOver:
             self.gameOverFunc()
             return
@@ -200,19 +200,16 @@ class Game:
             self.forcePlayMusic("eat_fruit.wav")
 
         if self.ghostUpdateCount == self.ghostUpdateDelay:
-            # print("Update Ghosts")
             for ghost in self.ghosts:
                 ghost.update()
             self.ghostUpdateCount = 0
 
         if self.tictakChangeCount == self.tictakChangeDelay:
             #Changes the color of special Tic-Taks
-            # print("Update Board")
             self.flipColor()
             self.tictakChangeCount = 0
 
         if self.pacmanUpdateCount == self.pacmanUpdateDelay:
-            # print("Update Pacman")
             self.pacmanUpdateCount = 0
             self.pacman.update()
             self.pacman.col %= len(gameBoard[0])
@@ -285,8 +282,6 @@ class Game:
         if self.level - 1 == 8: #(self.levels[0][0] + self.levels[0][1]) // 50:
             print("You win", self.level, len(self.levels))
             running = False
-        # if musicPlaying:
-        # self.playMusic("siren_1.wav")
         self.softRender()
 
     # Render method
@@ -314,11 +309,11 @@ class Game:
 
                     # pygame.draw.rect(screen, (0, 0, 255),(j * square, i * square, square, square)) # (x, y, width, height)
                 elif gameBoard[i][j] == 2: # Draw Tic-Tak
-                    pygame.draw.circle(screen, (165, 93, 53),(j * square + square//2, i * square + square//2), square//4)
+                    pygame.draw.circle(screen, pelletColor,(j * square + square//2, i * square + square//2), square//4)
                 elif gameBoard[i][j] == 5: #Black Special Tic-Tak
                     pygame.draw.circle(screen, (0, 0, 0),(j * square + square//2, i * square + square//2), square//2)
                 elif gameBoard[i][j] == 6: #White Special Tic-Tak
-                    pygame.draw.circle(screen, (165, 93, 53),(j * square + square//2, i * square + square//2), square//2)
+                    pygame.draw.circle(screen, pelletColor,(j * square + square//2, i * square + square//2), square//2)
 
                 currentTile += 1
         # Draw Sprites
@@ -355,14 +350,27 @@ class Game:
         pygame.display.update()
 
     def playMusic(self, music):
+        # return False # Uncomment to disable music
+        global musicPlaying
         if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.unload()
             pygame.mixer.music.load(MusicPath + music)
             pygame.mixer.music.queue(MusicPath + music)
             pygame.mixer.music.play()
+            if music == "munch_1.wav":
+                musicPlaying = 0
+            elif music == "siren_1.wav":
+                musicPlaying = 2
+            else:
+                musicPlaying = 1
 
     def forcePlayMusic(self, music):
+        # return False # Uncomment to disable music
+        pygame.mixer.music.unload()
         pygame.mixer.music.load(MusicPath + music)
         pygame.mixer.music.play()
+        global musicPlaying
+        musicPlaying = 1
 
     def clearBoard(self):
             # Draw tiles around ghosts and pacman
@@ -417,7 +425,6 @@ class Game:
             tileImage = pygame.transform.scale(tileImage, (square, square))
             screen.blit(tileImage, ((highScoreStart + 6 + index) * square, square + 4, square, square))
             index += 1
-        # pygame.display.update()
 
     def drawBerry(self):
         if self.levelTimer in range(self.berryState[0], self.berryState[1]) and not self.berryState[2]:
@@ -425,7 +432,6 @@ class Game:
             berryImage = pygame.image.load(ElementPath + self.berries[(self.level - 1) % 8])
             berryImage = pygame.transform.scale(berryImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(berryImage, (self.berryLocation[1] * square, self.berryLocation[0] * square, square, square))
-        # pygame.display.update()
 
 
     def drawPoints(self, points, row, col):
@@ -437,7 +443,7 @@ class Game:
             tileImage = pygame.transform.scale(tileImage, (square//2, square//2))
             screen.blit(tileImage, ((col) * square + (square//2 * index), row * square - 20, square//2, square//2))
             index += 1
-        # pygame.display.update()
+
     def drawReady(self):
         ready = ["tile274.png", "tile260.png", "tile256.png", "tile259.png", "tile281.png", "tile283.png"]
         for i in range(len(ready)):
@@ -471,6 +477,7 @@ class Game:
             lifeImage = pygame.image.load(ElementPath + "tile054.png")
             lifeImage = pygame.transform.scale(lifeImage, (int(square * spriteRatio), int(square * spriteRatio)))
             screen.blit(lifeImage, (livesLoc[i][1] * square, livesLoc[i][0] * square - spriteOffset, square, square))
+
     def displayBerries(self):
         firstBerrie = [34, 26]
         for i in range(len(self.berriesCollected)):
@@ -531,11 +538,11 @@ class Game:
                     screen.blit(tileImage, (j * square, i * square, square, square))
 
                     if gameBoard[i][j] == 2: # Draw Tic-Tak
-                        pygame.draw.circle(screen, (165, 93, 53),(j * square + square//2, i * square + square//2), square//4)
+                        pygame.draw.circle(screen, pelletColor,(j * square + square//2, i * square + square//2), square//4)
                     elif gameBoard[i][j] == 5: #Black Special Tic-Tak
                         pygame.draw.circle(screen, (0, 0, 0),(j * square + square//2, i * square + square//2), square//2)
                     elif gameBoard[i][j] == 6: #White Special Tic-Tak
-                        pygame.draw.circle(screen, (165, 93, 53),(j * square + square//2, i * square + square//2), square//2)
+                        pygame.draw.circle(screen, pelletColor,(j * square + square//2, i * square + square//2), square//2)
 
     # Flips Color of Special Tic-Taks
     def flipColor(self):
@@ -544,7 +551,7 @@ class Game:
             for j in range(len(gameBoard[0])):
                 if gameBoard[i][j] == 5:
                     gameBoard[i][j] = 6
-                    pygame.draw.circle(screen, (165, 93, 53),(j * square + square//2, i * square + square//2), square//2)
+                    pygame.draw.circle(screen, pelletColor,(j * square + square//2, i * square + square//2), square//2)
                 elif gameBoard[i][j] == 6:
                     gameBoard[i][j] = 5
                     pygame.draw.circle(screen, (0, 0, 0),(j * square + square//2, i * square + square//2), square//2)
@@ -888,7 +895,6 @@ def canMove(row, col):
 # Reset after death
 def reset():
     global game
-    # ghosts = [Ghost(7, 6), Ghost(6, 6), Ghost(5, 6)]
     game.ghosts = [Ghost(14.0, 13.5, "red", 0), Ghost(17.0, 11.5, "blue", 1), Ghost(17.0, 13.5, "pink", 2), Ghost(17.0, 15.5, "orange", 3)]
     for ghost in game.ghosts:
         ghost.setTarget()
@@ -983,10 +989,6 @@ def displayLaunchScreen():
 
     pygame.display.update()
 
-
-
-
-
 running = True
 onLaunchScreen = True
 displayLaunchScreen()
@@ -1024,6 +1026,7 @@ while running:
                     game.render()
                     pygame.mixer.music.load(MusicPath + "pacman_beginning.wav")
                     pygame.mixer.music.play()
+                    musicPlaying = 1
             elif event.key == pygame.K_q:
                 running = False
                 game.recordHighScore()
