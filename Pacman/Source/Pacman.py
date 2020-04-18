@@ -163,42 +163,7 @@ class Game:
         if self.levelTimer == self.lockedInTimer:
             self.lockedIn = False
 
-        # Check if pacman got killed
-        for ghost in self.ghosts:
-            if self.touchingPacman(ghost.row, ghost.col) and not ghost.attacked:
-                if self.lives == 1:
-                    print("You lose")
-                    self.forcePlayMusic("death_1.wav")
-                    self.gameOver = True
-                    #Removes the ghosts from the screen
-                    for ghost in self.ghosts:
-                        self.drawTilesAround(ghost.row, ghost.col)
-                    self.drawTilesAround(self.pacman.row, self.pacman.col)
-                    self.pacman.draw()
-                    pygame.display.update()
-                    pause(10000000)
-                    return
-                self.started = False
-                self.forcePlayMusic("pacman_death.wav")
-                reset()
-            elif self.touchingPacman(ghost.row, ghost.col) and ghost.isAttacked() and not ghost.isDead():
-                ghost.setDead(True)
-                ghost.setTarget()
-                ghost.ghostSpeed = 1
-                ghost.row = math.floor(ghost.row)
-                ghost.col = math.floor(ghost.col)
-                self.score += self.ghostScore
-                self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
-                self.ghostScore *= 2
-                self.forcePlayMusic("eat_ghost.wav")
-                pause(10000000)
-        if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
-            self.berryState[2] = True
-            self.score += self.berryScore
-            self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
-            self.berriesCollected.append(self.berries[(self.level - 1) % 8])
-            self.forcePlayMusic("eat_fruit.wav")
-
+        self.checkSurroundings
         if self.ghostUpdateCount == self.ghostUpdateDelay:
             for ghost in self.ghosts:
                 ghost.update()
@@ -234,42 +199,7 @@ class Game:
                         ghost.setAttacked(True)
                         ghost.setTarget()
                         self.ghostsAttacked = True
-
-            # Check if pacman got killed
-            for ghost in self.ghosts:
-                if self.touchingPacman(ghost.row, ghost.col) and not ghost.attacked:
-                    if self.lives == 1:
-                        print("You lose")
-                        self.forcePlayMusic("death_1.wav")
-                        self.gameOver = True
-                        #Removes the ghosts from the screen
-                        for ghost in self.ghosts:
-                            self.drawTilesAround(ghost.row, ghost.col)
-                        self.drawTilesAround(self.pacman.row, self.pacman.col)
-                        self.pacman.draw()
-                        pygame.display.update()
-                        pause(10000000)
-                        return
-                    self.started = False
-                    self.forcePlayMusic("pacman_death.wav")
-                    reset()
-                elif self.touchingPacman(ghost.row, ghost.col) and ghost.isAttacked() and not ghost.isDead():
-                    ghost.setDead(True)
-                    ghost.setTarget()
-                    ghost.ghostSpeed = 1
-                    ghost.row = math.floor(ghost.row)
-                    ghost.col = math.floor(ghost.col)
-                    self.score += self.ghostScore
-                    self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
-                    self.ghostScore *= 2
-                    self.forcePlayMusic("eat_ghost.wav")
-                    pause(10000000)
-            if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
-                self.berryState[2] = True
-                self.score += self.berryScore
-                self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
-                self.berriesCollected.append(self.berries[(self.level - 1) % 8])
-                self.forcePlayMusic("eat_fruit.wav")
+        self.checkSurroundings()
         self.highScore = max(self.score, self.highScore)
 
         global running
@@ -385,6 +315,42 @@ class Game:
             self.drawTilesAround(20, 13)
             self.drawTilesAround(20, 14)
 
+    def checkSurroundings(self):
+        # Check if pacman got killed
+        for ghost in self.ghosts:
+            if self.touchingPacman(ghost.row, ghost.col) and not ghost.attacked:
+                if self.lives == 1:
+                    print("You lose")
+                    self.forcePlayMusic("death_1.wav")
+                    self.gameOver = True
+                    #Removes the ghosts from the screen
+                    for ghost in self.ghosts:
+                        self.drawTilesAround(ghost.row, ghost.col)
+                    self.drawTilesAround(self.pacman.row, self.pacman.col)
+                    self.pacman.draw()
+                    pygame.display.update()
+                    pause(10000000)
+                    return
+                self.started = False
+                self.forcePlayMusic("pacman_death.wav")
+                reset()
+            elif self.touchingPacman(ghost.row, ghost.col) and ghost.isAttacked() and not ghost.isDead():
+                ghost.setDead(True)
+                ghost.setTarget()
+                ghost.ghostSpeed = 1
+                ghost.row = math.floor(ghost.row)
+                ghost.col = math.floor(ghost.col)
+                self.score += self.ghostScore
+                self.points.append([ghost.row, ghost.col, self.ghostScore, 0])
+                self.ghostScore *= 2
+                self.forcePlayMusic("eat_ghost.wav")
+                pause(10000000)
+        if self.touchingPacman(self.berryLocation[0], self.berryLocation[1]) and not self.berryState[2] and self.levelTimer in range(self.berryState[0], self.berryState[1]):
+            self.berryState[2] = True
+            self.score += self.berryScore
+            self.points.append([self.berryLocation[0], self.berryLocation[1], self.berryScore, 0])
+            self.berriesCollected.append(self.berries[(self.level - 1) % 8])
+            self.forcePlayMusic("eat_fruit.wav")
     # Displays the current score
     def displayScore(self):
         textOneUp = ["tile033.png", "tile021.png", "tile016.png"]
@@ -759,7 +725,7 @@ class Ghost:
         for ghost in game.ghosts:
             if ghost.color == self.color:
                 continue
-            if ghost.row == cRow and ghost.col == cCol:
+            if ghost.row == cRow and ghost.col == cCol and not self.dead:
                 return False
         if not ghostGate.count([cRow, cCol]) == 0:
             if self.dead and self.row < cRow:
