@@ -12,7 +12,7 @@ A very simple iteration of the retro game 'Snake' <br/> <br/>
 # Pacman.py
 The retro game 'Pacman' in all its beauty <br/> <br/>
 **Deployment:**
-- Download Pacman Assets and Source folders and store them in the same folder <br/>
+- Download the Pacman Assets and Source folders and store them in the same folder <br/>
 - Download Python3 [https://www.python.org/downloads/] <br/>
 - Install pygame(2.0.0) [pip3 and homebrew are easy options] <br/>
 - In terminal, navigate to the Pacman.py (in the Source folder) <br/>
