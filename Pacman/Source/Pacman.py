@@ -273,6 +273,7 @@ class Game:
         self.pacman.draw()
         self.displayScore()
         self.displayBerries()
+        self.displayLives()
         # for point in pointsToDraw:
         #     self.drawPoints(point[0], point[1], point[2])
         self.drawBerry()
