@@ -1,5 +1,5 @@
 # Youtube
-Code from my Youtube video(s)
+Code from my Youtube videos
 
 # Snake.py
 A simple iteration of the retro game 'Snake' <br/> <br/>
