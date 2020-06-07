@@ -1,6 +1,6 @@
-# Retro
+# Retro Games
 A couple arcade games I made in python.
-# Pacman.py
+# Pacman
 The 80's classic 'Pacman' in all its beauty <br/> <br/>
 **Deployment:**
 - Download the Pacman Assets and Source folders and store them in the same folder <br/>
@@ -8,7 +8,7 @@ The 80's classic 'Pacman' in all its beauty <br/> <br/>
 - Install pygame(2.0.0) [pip3 and homebrew are easy options] <br/>
 - In terminal, navigate to the file Pacman.py (in the Source folder) <br/>
 - In terminal type python3 Pacman.py and hit enter
-# Snake.py
+# Snake
 I also wrote 'Snake'... <br/> <br/>
 **Deployment:**
 - Download Snake.py <br/>
