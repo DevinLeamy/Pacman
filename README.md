@@ -1,14 +1,5 @@
 # Youtube
 Code from my Youtube videos
-
-# Snake.py
-A simple iteration of the retro game 'Snake' <br/> <br/>
-**Deployment:**
-- Download Snake.py <br/>
-- Download Python3 [https://www.python.org/downloads/] <br/>
-- Install pygame [pip3 and homebrew are easy options] <br/>
-- In terminal, navigate to the file Snake.py <br/>
-- In terminal type python3 Snake.py and hit enter
 # Pacman.py
 The 80's classic 'Pacman' in all its beauty <br/> <br/>
 **Deployment:**
@@ -17,4 +8,12 @@ The 80's classic 'Pacman' in all its beauty <br/> <br/>
 - Install pygame(2.0.0) [pip3 and homebrew are easy options] <br/>
 - In terminal, navigate to the file Pacman.py (in the Source folder) <br/>
 - In terminal type python3 Pacman.py and hit enter
+# Snake.py
+A simple iteration of the retro game 'Snake' <br/> <br/>
+**Deployment:**
+- Download Snake.py <br/>
+- Download Python3 [https://www.python.org/downloads/] <br/>
+- Install pygame [pip3 and homebrew are easy options] <br/>
+- In terminal, navigate to the file Snake.py <br/>
+- In terminal type python3 Snake.py and hit enter
 
