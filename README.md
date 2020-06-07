@@ -9,7 +9,7 @@ The 80's classic 'Pacman' in all its beauty <br/> <br/>
 - In terminal, navigate to the file Pacman.py (in the Source folder) <br/>
 - In terminal type python3 Pacman.py and hit enter
 # Snake.py
-A simple iteration of the retro game 'Snake' <br/> <br/>
+I also wrote 'Snake'... <br/> <br/>
 **Deployment:**
 - Download Snake.py <br/>
 - Download Python3 [https://www.python.org/downloads/] <br/>
