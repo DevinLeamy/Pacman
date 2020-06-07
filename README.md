@@ -1,5 +1,5 @@
-# Youtube
-Code from my Youtube videos
+# Retro
+A couple arcade games I made in python.
 # Pacman.py
 The 80's classic 'Pacman' in all its beauty <br/> <br/>
 **Deployment:**
