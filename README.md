@@ -7,7 +7,9 @@ The 80's classic 'Pacman' in all its beauty <br/> <br/>
 - Download Python3 [https://www.python.org/downloads/] <br/>
 - Install pygame(2.0.0) [pip3 and homebrew are easy options] <br/>
 - In terminal, navigate to the file Pacman.py (in the Source folder) <br/>
-- In terminal type python3 Pacman.py and hit enter
+- In terminal type python3 Pacman.py and hit enter<br/>
+<br/>
+_Note:_ To adjust screen size change the variable square on line #58 of Pacman/Source/Pacman.py
 # Snake
 I also wrote 'Snake'... <br/> <br/>
 **Deployment:**
