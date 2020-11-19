@@ -9,7 +9,7 @@ The 80's classic 'Pacman' in all its beauty <br/> <br/>
 - In terminal, navigate to the file Pacman.py (in the Source folder) <br/>
 - In terminal type python3 Pacman.py and hit enter<br/>
 <br/>
-Note: To adjust screen size change the variable square on line #58 of Pacman/Source/Pacman.py
+Note: To adjust screen size change the variable "square" on line #58 of Pacman/Source/Pacman.py
 # Snake
 I also wrote 'Snake'... <br/> <br/>
 **Deployment:**
