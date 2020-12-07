@@ -4,11 +4,11 @@ from random import randrange
 import random
 import copy
 
-BoardPath = "../Assets/BoardImages/"
-ElementPath = "../Assets/ElementImages/"
-TextPath = "../Assets/TextImages/"
-DataPath = "../Assets/Data/"
-MusicPath = "../Assets/Music/"
+BoardPath = "Assets/BoardImages/"
+ElementPath = "Assets/ElementImages/"
+TextPath = "Assets/TextImages/"
+DataPath = "Assets/Data/"
+MusicPath = "Assets/Music/"
 
 pygame.mixer.init()
 pygame.init()
