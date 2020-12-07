@@ -3,6 +3,7 @@ import math
 from random import randrange
 import random
 import copy
+import os
 
 BoardPath = "Assets/BoardImages/"
 ElementPath = "Assets/ElementImages/"
