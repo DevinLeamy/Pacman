@@ -1,7 +1,7 @@
 # Retro Games
 A couple arcade games I made in python.
 # Pacman
-The 80's classic 'Pacman' in all its beauty <br/> <br/>
+The 80s classic Pacman in all its beauty <br/> <br/>
 **Deployment:**
 <br/>
 1. Option One:
