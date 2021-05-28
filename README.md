@@ -2,6 +2,9 @@
 A couple arcade games I made in python.
 # Pacman
 The 80s classic Pacman in all its beauty <br/> <br/>
+![Pacman Menu Screen](Pacman/Media/menu.png)
+![Pacman Gameplay](Pacman/Media/gameplay.gif) <br/> 
+
 **Deployment:**
 <br/>
 1. Option One:
