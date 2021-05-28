@@ -2,8 +2,7 @@
 A couple arcade games I made in python.
 # Pacman
 The 80s classic Pacman in all its beauty <br/> <br/>
-![Pacman Menu Screen](Pacman/Media/menu.png)
-![Pacman Gameplay](Pacman/Media/gameplay.gif) <br/> 
+<!-- <img src="Pacman/Media/menu.png" alt="Pacman Menu Screen" width="400"/> -->
 
 **Deployment:**
 <br/>
@@ -20,6 +19,10 @@ The 80s classic Pacman in all its beauty <br/> <br/>
 <br/>
 
 Note: To adjust screen size change the variable "square" on line #59 of Pacman/Pacman.py <br/>
+
+**Gameplay (delay is just a visual artifact; it runs smooth):**
+<br/>
+<img src="Pacman/Media/gameplay.gif" alt="Pacman Gameplay" width="600"/>
 
 # Snake
 I also wrote 'Snake'... <br/> <br/>
