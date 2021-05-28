@@ -55,7 +55,7 @@ originalGameBoard = [
 ]
 gameBoard = copy.deepcopy(originalGameBoard)
 spriteRatio = 3/2
-square = 30 # Size of each unit square
+square = 25 # Size of each unit square
 spriteOffset = square * (1 - spriteRatio) * (1/2)
 (width, height) = (len(gameBoard[0]) * square, len(gameBoard) * square) # Game screen
 screen = pygame.display.set_mode((width, height))
