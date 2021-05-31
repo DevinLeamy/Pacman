@@ -20,7 +20,7 @@ The 80s classic Pacman in all its beauty <br/> <br/>
 
 Note: To adjust screen size change the variable "square" on line #59 of Pacman/Pacman.py <br/>
 
-**Gameplay (delay is just a visual artifact; it runs smooth):**
+**Gameplay (delay is just an artifact of the video quality; it runs smooth):**
 <br/>
 <img src="Pacman/Media/gameplay.gif" alt="Pacman Gameplay" width="600"/>
 
