@@ -65,6 +65,12 @@ musicPlaying = 0 # 0: Chomp, 1: Important, 2: Siren
 # pelletColor = (165, 93, 53)
 pelletColor = (222, 161, 133)
 
+PLAYING_KEYS = {
+    "up":[pygame.K_w, pygame.K_UP],
+    "down":[pygame.K_s, pygame.K_DOWN],
+    "right":[pygame.K_d, pygame.K_RIGHT],
+    "left":[pygame.K_a, pygame.K_LEFT]
+}
 
 class Game:
     def __init__(self, level, score):
@@ -960,6 +966,7 @@ def displayLaunchScreen():
 running = True
 onLaunchScreen = True
 displayLaunchScreen()
+clock = pygame.time.Clock()
 
 def pause(time):
     cur = 0
@@ -967,6 +974,7 @@ def pause(time):
         cur += 1
 
 while running:
+    clock.tick(40)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -974,16 +982,16 @@ while running:
         elif event.type == pygame.KEYDOWN:
             game.paused = False
             game.started = True
-            if event.key == pygame.K_w:
+            if event.key in PLAYING_KEYS["up"]:
                 if not onLaunchScreen:
                     game.pacman.newDir = 0
-            elif event.key == pygame.K_d:
+            elif event.key in PLAYING_KEYS["right"]:
                 if not onLaunchScreen:
                     game.pacman.newDir = 1
-            elif event.key == pygame.K_s:
+            elif event.key in PLAYING_KEYS["down"]:
                 if not onLaunchScreen:
                     game.pacman.newDir = 2
-            elif event.key == pygame.K_a:
+            elif event.key in PLAYING_KEYS["left"]:
                 if not onLaunchScreen:
                     game.pacman.newDir = 3
             elif event.key == pygame.K_SPACE:
