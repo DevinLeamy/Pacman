@@ -966,6 +966,7 @@ def displayLaunchScreen():
 running = True
 onLaunchScreen = True
 displayLaunchScreen()
+clock = pygame.time.Clock()
 
 def pause(time):
     cur = 0
@@ -973,6 +974,7 @@ def pause(time):
         cur += 1
 
 while running:
+    clock.tick(40)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
